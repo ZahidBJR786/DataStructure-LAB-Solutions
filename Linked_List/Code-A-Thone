@@ -1,0 +1,209 @@
+#include <iostream>
+using namespace std;
+
+struct Node{
+	string Name;
+	int ID;
+	Node* Next;
+	
+	Node(string N, int Id)
+	{
+		Name = N;
+		ID = Id;
+		Next = nullptr;
+	}
+};
+
+class TShirtEvent{
+	private:
+		Node* Head;
+		int Count;
+		int Serve = 0;
+	public:
+		TShirtEvent()
+		{
+			Head = nullptr;
+			Count = 0;
+		}
+		void AddStudent()
+		{
+			string Name;
+			cout << "Enter Student's Name: ";
+			cin >> Name;
+			
+			int ID;
+			cout << "Enter ID: ";
+			cin >> ID;
+			
+			Node* Student = new Node(Name, ID);
+			
+			if(Head == nullptr)
+			{
+				Head = Student;
+			}
+			else
+			{
+				Node* Cur = Head;
+				while(Cur -> Next != nullptr)
+				{
+					Cur = Cur -> Next;
+				}
+				
+				Cur -> Next = Student;
+			}
+			
+			Count++; 
+			cout << "Student Added to the queue Successfully!" << endl;
+		}
+		void ServeStudent()
+		{
+			if(Head == nullptr)
+			{
+				cout << "The Queue is empty!" << endl;
+			}
+			else 
+			{
+				if(Serve >= 5)
+				{
+					cout << "T-Shirts limit is Exceeded!" << endl;
+				}
+				else
+				{
+					Node* Temp = Head;
+					Head = Head -> Next;
+					
+					cout << "Serving Student: " << Temp -> Name << ", ID: " << Temp -> ID << endl;
+					
+					delete Temp;
+					Serve++;
+					Count--;
+				}
+				
+			}
+		}
+		void RemoveByID()
+		{
+			int Id; 
+			cout << "Enter ID to Remove: ";
+			cin >> Id;
+			
+			if (Head == nullptr)
+			{
+        		cout << "Queue is empty!" << endl;
+        		return;
+        	}
+			
+			if(Head -> ID == Id)
+			{
+				Node* Temp = Head;
+				Head = Head -> Next;
+				delete Temp;
+				Count--;
+				
+				cout << "Student With ID: " << Id << " Leaves." << endl;
+				return;
+			}
+			
+			Node* Cur = Head;
+			Node* Pre = nullptr;
+			
+			while(Cur != nullptr && Cur -> ID != Id)
+			{
+				Pre = Cur;
+				Cur = Cur -> Next;
+			}
+			
+			if(Cur == nullptr)
+			{
+				cout << "Student With ID: " << Id << " not found!" << endl;
+			}
+			
+			
+			Pre -> Next = Cur -> Next;
+			delete Cur;
+			Count--;
+			
+			cout << "Student With ID: " << Id << " Leaves." << endl;
+			
+			
+		}
+		void DisplayQueue()
+		{
+			if(Head == nullptr)
+			{
+				cout << "Queue is empty!" << endl;
+			}
+			
+			Node* Cur = Head;
+			
+			cout << "   Current Queue(" << Count << " Students)   " << endl;
+			cout << "-----------------------------" << endl;
+			while(Cur != nullptr)
+			{
+				cout << "Name: " << Cur -> Name << ",  ID: " << Cur -> ID << endl;
+				Cur = Cur -> Next;
+			}
+			cout << "-------------------------------------------" << endl;
+		}
+		
+		void CountF()
+		{
+			cout << "Total Students: " << Count << endl;
+		}
+};
+
+int main(int argc, char** argv) {
+	
+	TShirtEvent E1;
+	
+	int Choice;
+	
+	do{
+		cout << "=== T-Shirt Event Menu===" << endl;
+		cout << "1. Add Student at End. " <<  endl;
+		cout << "2. Serve Student from Front. " <<  endl;
+		cout << "3. Remove Student by ID. " <<  endl;
+		cout << "4. Display the Queue." <<  endl;
+		cout << "5. Count of Students." <<  endl;
+		cout << "6. Exit " <<  endl << endl;
+		
+		cout << "Enter Choice(1/6): ";
+		cin >> Choice;
+		
+		if(Choice == 1)
+		{
+			E1.AddStudent();
+			cout << endl;
+		}
+		else if(Choice == 2)
+		{
+			E1.ServeStudent();
+			cout << endl;
+		}
+		else if(Choice == 3)
+		{
+			E1.RemoveByID();
+		}
+		else if(Choice == 4)
+		{
+			E1.DisplayQueue();
+			cout << endl;
+		}
+		else if(Choice == 5)
+		{
+			E1.CountF();
+		}
+		else if(Choice == 6)
+		{
+			break;
+		}
+		else
+		{
+			cout << "Invalid! entry. Try Again!" << endl;
+		}
+	} while(Choice != 6);
+	
+	
+	
+	return 0;
+}
