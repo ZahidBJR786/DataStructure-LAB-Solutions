@@ -1,0 +1,153 @@
+#include <iostream>
+using namespace std;
+
+
+struct Node{
+	int Data;
+	Node* Next;
+	
+	Node(int d)
+	{
+		Data = d;
+		Next = nullptr;
+	}
+};
+
+class LinkedList {
+	private:
+		Node* Head;
+	
+	public:
+		LinkedList()
+		{
+			Head = nullptr;
+		}
+		~LinkedList()
+		{
+			Node* Cur = Head;
+			
+			while(Cur)
+			{
+				Node* Nxt = Cur->Next;
+				delete Cur;
+				Cur = Nxt;
+			}
+		}
+		
+		void InsertAtBeginning(int Value)
+		{
+			Node* node = new Node(Value);
+			node->Next = Head;
+			Head = node;
+		}
+		void InsertAtEnd(int Value)
+		{
+			Node* node = new Node(Value);
+			
+			if(Head == nullptr)
+			{
+				Head = node;
+				return;
+			}
+			
+			Node* Cur = Head;
+			while(Cur->Next != nullptr)
+			{
+				Cur = Cur->Next;
+			}
+			Cur->Next = node;
+		}
+		void InsertAtPosition(int Value, int Pos)
+		{
+			Node* node = new Node(Value);
+			
+			if(Pos == 0)
+			{
+				node->Next = Head;
+				Head = node;
+				return;
+			}
+			
+			Node* Cur = Head;
+			for(int i=0; Cur!=nullptr && i<Pos - 1; i++)
+			{
+				Cur = Cur->Next;
+			}
+			
+			if(Cur == nullptr)
+			{
+				cout << "Position is out of Range." << endl;
+				cout << "Inserting at End." << endl;
+				
+				InsertAtEnd(Value);
+				return;
+			}
+			node->Next = Cur->Next;
+			Cur->Next = node;
+		}
+		
+		bool RemoveFromBeginning()
+		{
+			if(Head  == nullptr)
+			{
+				return false;
+			}
+			
+			Node* Temp = Head;
+			Head = Head->Next;
+			delete Temp;
+			return true;
+		}
+		
+		void DisplayList()
+		{
+			Node* Cur = Head;
+			while(Cur)
+			{
+				cout << Cur->Data; 
+				if(Cur->Next)
+				{
+					cout << " -> ";
+				}
+				Cur = Cur->Next;
+			}
+			cout << endl;
+		}
+};
+
+int main(int argc, char** argv) {
+	
+	LinkedList list;
+	
+	
+	list.InsertAtEnd(101);
+	list.InsertAtEnd(102);
+	list.InsertAtEnd(103);
+	cout << "Passengers are Boarded." << endl;
+	cout << "-----------------------" << endl;
+	list.DisplayList();
+	
+	cout << endl;
+	
+	list.InsertAtBeginning(99);
+	cout << "Special Passenger Boarded at beginning." << endl;
+	cout << "---------------------------------------" << endl;
+	list.DisplayList();
+	
+	cout << endl;
+	
+	list.InsertAtPosition(313, 2);
+	cout << "Special Booking Passenger Boarded." << endl;
+	cout << "----------------------------------" << endl;
+	list.DisplayList();
+	
+	cout << endl;
+	
+	list.RemoveFromBeginning();
+	cout << "1st Passenger Dropped." << endl;
+	cout << "----------------------" << endl;
+	list.DisplayList();
+                    
+	
+	return 0;
+}
