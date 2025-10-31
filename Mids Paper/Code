@@ -1,0 +1,197 @@
+#include <iostream>
+//#include <iomanip>
+using namespace std;
+
+class PatientNode {
+	public:
+    	int PatientID;
+    	PatientNode* Next;
+    	PatientNode* Prev;
+
+	public:
+    	PatientNode(int Data)
+		{
+        	PatientID = Data;
+        	Next = nullptr;
+        	Prev = nullptr;
+    	}
+};
+
+class Hospital_Q {
+private:
+    PatientNode* Head;
+    PatientNode* Tail;
+
+public:
+    Hospital_Q()
+	{
+        Head = nullptr;
+        Tail = nullptr;
+    }
+
+    ~Hospital_Q()
+	{
+        PatientNode* Current = Head;
+        while(Current) {
+            PatientNode* Temp = Current;
+            Current = Current -> Next;
+            delete Temp;
+        }
+        Head = nullptr;
+        Tail = nullptr;
+    }
+
+    void Display()
+	{
+        if(Head == nullptr)
+        {
+        	cout << "The list is empty." << endl;
+		}
+		 PatientNode* Temp = Head;
+    	cout << "Patients in the queue: ";
+    	while (Temp != nullptr)
+    	{
+        	cout << Temp -> PatientID;
+        	if (Temp -> Next != nullptr)
+            	{
+            		cout << " <-> ";
+				}
+        	Temp = Temp -> Next;
+    	}
+    	cout << endl;
+		
+    }
+
+    void InsertAtBegin(int Data)
+	{
+        PatientNode* n = new PatientNode(Data);
+        if (Head == nullptr)
+		{
+            Head = Tail = n;
+        }
+		else
+		{
+            n -> Next = Head;
+            Head -> Prev = n;
+            Head = n;
+        }
+    }
+
+    void InsertAtEnd(int Data)
+	{
+        PatientNode* n = new PatientNode(Data);
+        if (Tail == nullptr)
+		{
+            Head = Tail = n;
+        }
+		else
+		{
+            Tail -> Next = n;
+            n -> Prev = Tail;
+            Tail = n;
+        }
+    }
+
+    void InsertAtPosition(int Data, int pos)
+	{
+        if (pos <= 1)
+		{
+            InsertAtBegin(Data);
+            return;
+        }
+
+        PatientNode* Current = Head;
+        for (int i = 1; i < pos - 1 && Current != nullptr; i++)
+		{
+            Current = Current -> Next;
+        }
+
+        if (Current == nullptr)
+		{
+            cout << "Invalid Index..." << endl;
+            return;
+        }
+
+        PatientNode* n = new PatientNode(Data);
+        n -> Next = Current -> Next;
+        n -> Prev = Current;
+
+        if (Current -> Next != nullptr)
+		{
+        	Current -> Next -> Prev = n;
+        }
+		else
+		{
+            Tail = n;
+        }
+
+        Current -> Next = n;
+    }
+
+    void DeleteFromBegin()
+	{
+        if (Head == nullptr) 
+		{
+			return;
+		}
+		
+        PatientNode* Temp = Head;
+        if (Head == Tail)
+		{
+            Head = Tail = nullptr;
+        }
+		else
+		{
+            Head = Head -> Next;
+            Head -> Prev = nullptr;
+        }
+        delete Temp;
+    }
+};
+
+int main() {
+    Hospital_Q HE_Q;
+    
+    
+    HE_Q.InsertAtBegin(100);
+    cout << "Insert At Begin(100) : " << endl;
+    HE_Q.Display();
+    cout << "-----------------------" << endl << endl;
+    
+    HE_Q.InsertAtEnd(101);
+    cout << "InsertAtEnd(101): " << endl;
+    HE_Q.Display();
+    cout << "-----------------------" << endl << endl;
+
+    HE_Q.InsertAtEnd(102);
+    cout << "InsertAtEnd(102): " << endl;
+    HE_Q.Display();
+    cout << "-----------------------" << endl << endl;
+
+    HE_Q.InsertAtBegin(200);
+    cout << "InsertAtBegin(200): " << endl;
+    HE_Q.Display();
+    cout << endl;
+    cout << "-----------------------" << endl << endl;
+
+    HE_Q.InsertAtPosition(150, 2);
+    cout << "InsertAtPosition(150, 2): " << endl;
+    HE_Q.Display();
+    cout << endl;
+    cout << "-----------------------" << endl << endl;
+
+    HE_Q.DeleteFromBegin();
+    cout << "DeleteFromBegin(): ";
+    HE_Q.Display();
+    cout << endl;
+    cout << "-----------------------" << endl << endl;
+
+    HE_Q.InsertAtEnd(300);
+    cout << "InsertAtEnd(300): " << endl;
+    HE_Q.Display();
+    cout << endl;
+    cout << "-----------------------" << endl << endl;
+
+    return 0;
+}
+
