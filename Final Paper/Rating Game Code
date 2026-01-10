@@ -1,0 +1,309 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Node {
+    int rating;
+    string name;
+    int hp;
+    Node* left;
+    Node* right;
+
+    Node(int r, string n, int h) {
+        rating = r;
+        name = n;
+        hp = h;
+        left = NULL;
+        right = NULL;
+    }
+};
+
+class BST {
+    Node* root;
+
+    Node* insertNode(Node* node, int r, string n, int h) {
+        if (!node) return new Node(r, n, h);
+        if (r < node->rating) node->left = insertNode(node->left, r, n, h);
+        else if (r > node->rating) node->right = insertNode(node->right, r, n, h);
+        return node;
+    }
+
+    Node* searchNode(Node* node, int r) {
+        if (!node || node->rating == r) return node;
+        if (r < node->rating) return searchNode(node->left, r);
+        return searchNode(node->right, r);
+    }
+
+    Node* minNode(Node* node) {
+        while (node && node->left) node = node->left;
+        return node;
+    }
+
+    Node* maxNode(Node* node) {
+        while (node && node->right) node = node->right;
+        return node;
+    }
+
+    Node* deleteNode(Node* node, int r) {
+        if (!node) return NULL;
+
+        if (r < node->rating) node->left = deleteNode(node->left, r);
+        else if (r > node->rating) node->right = deleteNode(node->right, r);
+        else {
+            if (!node->left && !node->right) {
+                delete node;
+                return NULL;
+            }
+            if (!node->left) {
+                Node* t = node->right;
+                delete node;
+                return t;
+            }
+            if (!node->right) {
+                Node* t = node->left;
+                delete node;
+                return t;
+            }
+            Node* s = minNode(node->right);
+            node->rating = s->rating;
+            node->name = s->name;
+            node->hp = s->hp;
+            node->right = deleteNode(node->right, s->rating);
+        }
+        return node;
+    }
+
+    Node* predecessor(Node* node, int x, Node* best) {
+        if (!node) return best;
+        if (node->rating < x) return predecessor(node->right, x, node);
+        return predecessor(node->left, x, best);
+    }
+
+    Node* successor(Node* node, int x, Node* best) {
+        if (!node) return best;
+        if (node->rating > x) return successor(node->left, x, node);
+        return successor(node->right, x, best);
+    }
+
+    int countLess(Node* node, int x) {
+        if (!node) return 0;
+        if (node->rating < x)
+            return 1 + countLess(node->left, x) + countLess(node->right, x);
+        return countLess(node->left, x);
+    }
+
+    int countNodes(Node* node) {
+        if (!node) return 0;
+        return 1 + countNodes(node->left) + countNodes(node->right);
+    }
+
+    Node* kthNode(Node* node, int& k) {
+        if (!node) return NULL;
+        Node* left = kthNode(node->left, k);
+        if (left) return left;
+        if (--k == 0) return node;
+        return kthNode(node->right, k);
+    }
+
+    void rangePrint(Node* node, int l, int r, bool& f) {
+        if (!node) return;
+        rangePrint(node->left, l, r, f);
+        if (node->rating >= l && node->rating <= r) {
+            cout << node->rating << " " << node->name << " " << node->hp << "\n";
+            f = true;
+        }
+        rangePrint(node->right, l, r, f);
+    }
+
+    int height(Node* node) {
+        if (!node) return -1;
+        return 1 + max(height(node->left), height(node->right));
+    }
+
+    int leafCount(Node* node) {
+        if (!node) return 0;
+        if (!node->left && !node->right) return 1;
+        return leafCount(node->left) + leafCount(node->right);
+    }
+
+    bool path(Node* node, int r, Node** arr, int& len) {
+        if (!node) return false;
+        arr[len++] = node;
+        if (node->rating == r) return true;
+        if (r < node->rating && path(node->left, r, arr, len)) return true;
+        if (r > node->rating && path(node->right, r, arr, len)) return true;
+        len--;
+        return false;
+    }
+
+public:
+    BST() { root = NULL; }
+
+    void join(int r, string n, int h) {
+        if (searchNode(root, r)) cout << "DUPLICATE\n";
+        else {
+            root = insertNode(root, r, n, h);
+            cout << "JOINED\n";
+        }
+    }
+
+    void leave(int r) {
+        if (!searchNode(root, r)) cout << "NOT FOUND\n";
+        else {
+            root = deleteNode(root, r);
+            cout << "LEFT\n";
+        }
+    }
+
+    void status(int r) {
+        Node* p = searchNode(root, r);
+        if (!p) cout << "NOT FOUND\n";
+        else cout << p->rating << " " << p->name << " " << p->hp << "\n";
+    }
+
+    void damage(int r, int a) {
+        Node* p = searchNode(root, r);
+        if (!p) cout << "NOT FOUND\n";
+        else {
+            p->hp = max(0, p->hp - a);
+            cout << "DAMAGED " << p->hp << "\n";
+        }
+    }
+
+    void heal(int r, int a) {
+        Node* p = searchNode(root, r);
+        if (!p) cout << "NOT FOUND\n";
+        else {
+            p->hp += a;
+            cout << "HEALED " << p->hp << "\n";
+        }
+    }
+
+    void match(int x) {
+        if (!root) { cout << "EMPTY\n"; return; }
+        Node* p = predecessor(root, x, NULL);
+        Node* s = successor(root, x, NULL);
+        Node* c = NULL;
+        if (p && !s) c = p;
+        else if (!p && s) c = s;
+        else if (p && s) c = (x - p->rating <= s->rating - x) ? p : s;
+        if (!c) cout << "EMPTY\n";
+        else cout << c->rating << " " << c->name << " " << c->hp << "\n";
+    }
+
+    void next(int x) {
+        Node* p = successor(root, x, NULL);
+        if (!p) cout << "NONE\n";
+        else cout << p->rating << " " << p->name << " " << p->hp << "\n";
+    }
+
+    void prev(int x) {
+        Node* p = predecessor(root, x, NULL);
+        if (!p) cout << "NONE\n";
+        else cout << p->rating << " " << p->name << " " << p->hp << "\n";
+    }
+
+    void range(int l, int r) {
+        bool f = false;
+        rangePrint(root, l, r, f);
+        if (!f) cout << "EMPTY\n";
+    }
+
+    void rank(int x) {
+        cout << countLess(root, x) << "\n";
+    }
+
+    void kth(int k) {
+        int t = countNodes(root);
+        if (k < 1 || k > t) { cout << "OUT OF RANGE\n"; return; }
+        Node* p = kthNode(root, k);
+        cout << p->rating << " " << p->name << " " << p->hp << "\n";
+    }
+
+    void duel(int a, int b) {
+        if (!searchNode(root, a) || !searchNode(root, b)) {
+            cout << "NOT FOUND\n";
+            return;
+        }
+        Node* pa[1000];
+        Node* pb[1000];
+        int la = 0, lb = 0;
+        path(root, a, pa, la);
+        path(root, b, pb, lb);
+        int i = 0;
+        while (i < la && i < lb && pa[i] == pb[i]) i++;
+        cout << "DIST " << (la - i + lb - i) << "\n";
+    }
+
+    void stats() {
+        int t = countNodes(root);
+        cout << "PLAYERS " << t << "\n";
+        if (!root) {
+            cout << "MIN NONE\nMAX NONE\n";
+        } else {
+            cout << "MIN " << minNode(root)->rating << "\n";
+            cout << "MAX " << maxNode(root)->rating << "\n";
+        }
+        cout << "HEIGHT " << height(root) << "\n";
+        cout << "LEAVES " << leafCount(root) << "\n";
+    }
+};
+
+void processCommand(BST& bst) {
+    string c;
+    cin >> c;
+
+    if (c == "JOIN") {
+        int r, h; string n;
+        cin >> r >> n >> h;
+        bst.join(r, n, h);
+    } else if (c == "LEAVE") {
+        int r; cin >> r;
+        bst.leave(r);
+    } else if (c == "STATUS") {
+        int r; cin >> r;
+        bst.status(r);
+    } else if (c == "DAMAGE") {
+        int r, a; cin >> r >> a;
+        bst.damage(r, a);
+    } else if (c == "HEAL") {
+        int r, a; cin >> r >> a;
+        bst.heal(r, a);
+    } else if (c == "MATCH") {
+        int x; cin >> x;
+        bst.match(x);
+    } else if (c == "NEXT") {
+        int x; cin >> x;
+        bst.next(x);
+    } else if (c == "PREV") {
+        int x; cin >> x;
+        bst.prev(x);
+    } else if (c == "RANGE") {
+        int l, r; cin >> l >> r;
+        bst.range(l, r);
+    } else if (c == "RANK") {
+        int x; cin >> x;
+        bst.rank(x);
+    } else if (c == "KTH") {
+        int k; cin >> k;
+        bst.kth(k);
+    } else if (c == "DUEL") {
+        int a, b; cin >> a >> b;
+        bst.duel(a, b);
+    } else if (c == "STATS") {
+        bst.stats();
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int Q;
+    cin >> Q;
+
+    BST bst;
+    while (Q--) processCommand(bst);
+
+    return 0;
+}
